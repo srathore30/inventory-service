@@ -49,8 +49,8 @@ public class InventoryService {
         response.setMessage("Inventory Updated Successfully");
         return response;
     }
-    public InventoryUpdateResponse updateInventory(InventoryUpdateRequest request) {
-        InventoryEntity inventoryEntity = inventoryRepository.findById(request.getProductId()).get();
+    public InventoryUpdateResponse updateInventory(Long id,InventoryUpdateRequest request) {
+        InventoryEntity inventoryEntity = inventoryRepository.findById(id).get();
         inventoryEntity.setSalesLevel(request.getSalesLevel());
         inventoryEntity.setQuantity(inventoryEntity.getQuantity() - request.getQuantitySold());
         inventoryRepository.save(inventoryEntity);

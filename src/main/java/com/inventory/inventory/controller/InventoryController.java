@@ -20,9 +20,9 @@ public class InventoryController {
         return new ResponseEntity<>(inventoryService.createInventory(request), HttpStatus.OK);
     }
 
-    @PutMapping("/inventory/update")
-    public ResponseEntity<InventoryUpdateResponse> updateInventory( @RequestBody InventoryUpdateRequest request) {
-        return new ResponseEntity<>(inventoryService.updateInventory(request), HttpStatus.OK);
+    @PutMapping("/inventory/update/{id}")
+    public ResponseEntity<InventoryUpdateResponse> updateInventory( @PathVariable Long id,@RequestBody InventoryUpdateRequest request) {
+        return new ResponseEntity<>(inventoryService.updateInventory(id,request), HttpStatus.OK);
     }
 
     @GetMapping("/inventory/{productId}")
