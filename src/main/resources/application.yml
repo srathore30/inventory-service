@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/pro_order
+    url: jdbc:mysql://localhost:3306/inventoryDb
     username: root
     password: root
 
@@ -14,7 +14,6 @@ spring:
   spring:
     security:
       enabled: false
-
   application:
     name: inventory-service
 

@@ -1,7 +1,9 @@
 package com.inventory.inventory.controller;
 
 import com.inventory.inventory.dto.request.InventoryRequest;
+import com.inventory.inventory.dto.request.InventoryUpdateRequest;
 import com.inventory.inventory.dto.response.InventoryResponse;
+import com.inventory.inventory.dto.response.InventoryUpdateResponse;
 import com.inventory.inventory.dto.response.PaginatedResp;
 import com.inventory.inventory.service.InventoryService;
 import lombok.RequiredArgsConstructor;
@@ -13,10 +15,14 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class InventoryController {
     private final InventoryService inventoryService;
-
-    @PostMapping("/inventory/update")
+    @PostMapping("/inventory/create")
     public ResponseEntity<InventoryResponse> updateInventory(@RequestBody InventoryRequest request) {
-        return new ResponseEntity<>(inventoryService.updateInventory(request), HttpStatus.OK);
+        return new ResponseEntity<>(inventoryService.createInventory(request), HttpStatus.OK);
+    }
+
+    @PutMapping("/inventory/update/{id}")
+    public ResponseEntity<InventoryUpdateResponse> updateInventory( @PathVariable Long id,@RequestBody InventoryUpdateRequest request) {
+        return new ResponseEntity<>(inventoryService.updateInventory(id,request), HttpStatus.OK);
     }
 
     @GetMapping("/inventory/{productId}")
