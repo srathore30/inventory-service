@@ -1,6 +1,6 @@
 package com.inventory.inventory.entity;
 
-import com.inventory.inventory.constant.SalesLevel;
+import com.inventory.inventory.enums.SalesLevel;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Getter;
