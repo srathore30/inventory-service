@@ -19,16 +19,20 @@ public class InventoryController {
     @PostMapping("/inventory/create")
     @UserAuthorization
     public ResponseEntity<InventoryResponse> updateInventory(@RequestBody InventoryRequest request) {
-        return new ResponseEntity<>(inventoryService.createInventory(request), HttpStatus.CREATED);
+        return new ResponseEntity<>(inventoryService.createInventory(request), HttpStatus.OK);
     }
+
     @PutMapping("/inventory/update/{id}")
     @UserAuthorization
     public ResponseEntity<InventoryUpdateResponse> updateInventory( @PathVariable Long id,@RequestBody InventoryUpdateRequest request) {
         return new ResponseEntity<>(inventoryService.updateInventory(id,request), HttpStatus.OK);
     }
+
     @GetMapping("/inventory/{productId}")
     @UserAuthorization
     public ResponseEntity<PaginatedResp<InventoryResponse>> getInventoryByProductId(@PathVariable Long productId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(defaultValue = "createdDate") String sortBy, @RequestParam(defaultValue = "desc") String sortDirection) {
         return new ResponseEntity<>(inventoryService.getInventory(productId, page, pageSize, sortBy, sortDirection), HttpStatus.OK);
+
     }
+
 }

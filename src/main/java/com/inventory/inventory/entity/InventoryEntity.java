@@ -17,8 +17,4 @@ public class InventoryEntity extends BaseEntity {
     private Long quantity;
     private Date updateAt;
     private SalesLevel salesLevel;
-    private Long warehouseStock;
-    private Long retailStock;
-    private Long stockistStock;
-    private String unitOfMeasure;
 }
