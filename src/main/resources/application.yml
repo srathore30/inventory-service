@@ -18,7 +18,7 @@ spring:
     name: inventory-service
 
 server:
-  port: 9093
+  port: 9095
   servlet:
     context-path: /inventory-service
 
