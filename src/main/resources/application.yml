@@ -22,6 +22,12 @@ server:
   servlet:
     context-path: /inventory-service
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
 application:
   config:
     trace: true
