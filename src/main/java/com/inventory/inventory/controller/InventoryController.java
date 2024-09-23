@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class InventoryController {
     private final InventoryService inventoryService;
+
     @PostMapping("/inventory/create")
 //    @UserAuthorization
     public ResponseEntity<InventoryResponse> updateInventory(@RequestBody InventoryRequest request) {
@@ -24,8 +25,8 @@ public class InventoryController {
 
     @PutMapping("/inventory/update/{productId}")
 //    @UserAuthorization
-    public ResponseEntity<InventoryUpdateResponse> updateInventory( @PathVariable Long productId,@RequestBody InventoryUpdateRequest request) {
-        return new ResponseEntity<>(inventoryService.updateInventory(productId,request), HttpStatus.OK);
+    public ResponseEntity<InventoryUpdateResponse> updateInventory(@PathVariable Long productId, @RequestBody InventoryUpdateRequest request) {
+        return new ResponseEntity<>(inventoryService.updateInventory(productId, request), HttpStatus.OK);
     }
 
     @GetMapping("/inventory/{productId}")
