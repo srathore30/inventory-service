@@ -18,9 +18,15 @@ spring:
     name: inventory-service
 
 server:
-  port: 9093
+  port: 9095
   servlet:
     context-path: /inventory-service
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
 
 application:
   config:

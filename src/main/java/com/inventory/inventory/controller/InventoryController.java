@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class InventoryController {
     private final InventoryService inventoryService;
+
     @PostMapping("/inventory/create")
     public ResponseEntity<InventoryResponse> updateInventory(@RequestBody InventoryRequest request) {
         return new ResponseEntity<>(inventoryService.createInventory(request), HttpStatus.OK);
@@ -28,10 +29,10 @@ public class InventoryController {
         return new ResponseEntity<>(inventoryService.updateInventory(id,request), HttpStatus.OK);
     }
 
-    @GetMapping("/inventory/{productId}")
-    public ResponseEntity<PaginatedResp<InventoryResponse>> getInventoryByProductId(@PathVariable Long productId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(defaultValue = "createdDate") String sortBy, @RequestParam(defaultValue = "desc") String sortDirection) {
-        return new ResponseEntity<>(inventoryService.getInventory(productId, page, pageSize, sortBy, sortDirection), HttpStatus.OK);
 
+    @GetMapping("/inventory/{productId}")
+   public ResponseEntity<PaginatedResp<InventoryResponse>> getInventoryByProductId(@PathVariable Long productId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(defaultValue = "createdDate") String sortBy, @RequestParam(defaultValue = "desc") String sortDirection) {
+        return new ResponseEntity<>(inventoryService.getInventory(productId, page, pageSize, sortBy, sortDirection), HttpStatus.OK);
     }
 
 }
