@@ -31,6 +31,3 @@ springdoc:
 application:
   config:
     trace: true
-validate:
-  token:
-    url: http://localhost:9094/auth-service/auth/validateToken?token=
