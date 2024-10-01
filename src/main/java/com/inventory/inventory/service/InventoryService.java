@@ -1,8 +1,10 @@
 package com.inventory.inventory.service;
 
 import com.inventory.inventory.constant.ApiErrorCodes;
+import com.inventory.inventory.dto.request.InventoryFillRequest;
 import com.inventory.inventory.dto.request.InventoryRequest;
 import com.inventory.inventory.dto.request.InventoryUpdateRequest;
+import com.inventory.inventory.dto.response.InventoryFillResponse;
 import com.inventory.inventory.dto.response.InventoryResponse;
 import com.inventory.inventory.dto.response.InventoryUpdateResponse;
 import com.inventory.inventory.dto.response.PaginatedResp;
@@ -51,6 +53,7 @@ public class InventoryService {
         response.setMessage("Inventory Updated Successfully");
         return response;
     }
+
     public InventoryUpdateResponse updateInventory(Long productId,InventoryUpdateRequest request) {
         log.info("Inventory Updated Request for Sales Level : {}", request.getSalesLevel());
         log.info("Inventory Updated Request for Quantity Sold : {}", request.getQuantitySold());
@@ -86,5 +89,36 @@ public class InventoryService {
         List<InventoryResponse> collect = byProductId.getContent().stream().map(this::entityToDto).collect(Collectors.toList());
         log.info("Inventory Fetched Successfully: {} ", collect);
         return PaginatedResp.<InventoryResponse>builder().totalElements(byProductId.getTotalElements()).totalPages(byProductId.getTotalPages()).page(page).content(collect).build();
+    }
+    private InventoryFillResponse entityToFillUpdateDto(InventoryEntity inventoryEntity) {
+        InventoryFillResponse response = new InventoryFillResponse();
+        response.setProductId(inventoryEntity.getProductId());
+        response.setSalesLevel(inventoryEntity.getSalesLevel());
+        response.setCurrentStock(inventoryEntity.getQuantity());
+        response.setMessage("Inventory Filled Successfully");
+        return response;
+    }
+    public InventoryFillResponse fillInventory(Long id, InventoryFillRequest request) {
+        log.info("Filling Inventory: {} ", id);
+        InventoryEntity inventoryEntity = inventoryRepository.findById(id).orElseThrow(() ->
+                new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorCode(),ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorMessage()));
+        inventoryEntity.setSalesLevel(request.getSalesLevel());
+        inventoryEntity.setQuantity(inventoryEntity.getQuantity()+request.getQuantityToFill());
+        inventoryRepository.save(inventoryEntity);
+        log.info("Inventory Filled Successfully: {} ", inventoryEntity);
+        return entityToFillUpdateDto(inventoryEntity);
+    }
+
+    public PaginatedResp<InventoryResponse> getAllInventory(int page, int pageSize, String sortBy, String sortDirection) {
+        List<InventoryEntity> all = inventoryRepository.findAll();
+        if(all.isEmpty()){
+            throw  new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorCode(),ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorMessage());
+        }
+        Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, pageSize, sort);
+        Page<InventoryEntity> allInventory = inventoryRepository.findAll(pageable);
+        List<InventoryResponse> collect = allInventory.getContent().stream().map(this::entityToDto).collect(Collectors.toList());
+        log.info("Fetched All Successfully: {} ", collect);
+        return PaginatedResp.<InventoryResponse>builder().totalElements(allInventory.getTotalElements()).totalPages(allInventory.getTotalPages()).page(page).content(collect).build();
     }
 }
