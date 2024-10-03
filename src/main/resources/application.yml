@@ -31,3 +31,10 @@ springdoc:
 application:
   config:
     trace: true
+  spring:
+    mvc:
+      cors:
+        allowed-origins: "*"
+        allowed-methods: GET,POST,PUT,DELETE
+        allowed-headers: "*"
+        allow-credentials: true
