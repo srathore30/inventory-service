@@ -31,6 +31,10 @@ springdoc:
 application:
   config:
     trace: true
-validate:
-  token:
-    url: http://localhost:9094/auth-service/auth/validateToken?token=
+  spring:
+    mvc:
+      cors:
+        allowed-origins: "*"
+        allowed-methods: GET,POST,PUT,DELETE
+        allowed-headers: "*"
+        allow-credentials: true
