@@ -14,4 +14,5 @@ public class InventoryResponse {
     private Long quantity;
     private Date updateAt;
     private SalesLevel salesLevel;
+    private Long clientId;
 }
