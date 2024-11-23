@@ -34,6 +34,7 @@ public class InventoryService {
         inventoryEntity.setSalesLevel(request.getSalesLevel());
         inventoryEntity.setQuantity(request.getQuantity());
         inventoryEntity.setUpdateAt(request.getUpdateAt());
+        inventoryEntity.setClientId(request.getClientId());
         return inventoryEntity;
     }
 
@@ -43,6 +44,8 @@ public class InventoryService {
         response.setSalesLevel(inventoryEntity.getSalesLevel());
         response.setQuantity(inventoryEntity.getQuantity());
         response.setUpdateAt(inventoryEntity.getUpdateAt());
+        response.setInventoryId(inventoryEntity.getId());
+        response.setClientId(inventoryEntity.getClientId());
         return response;
     }
     private InventoryUpdateResponse entityToUpdateDto(InventoryEntity inventoryEntity) {

@@ -9,8 +9,10 @@ import java.util.Date;
 @Getter
 @Setter
 public class InventoryResponse {
+    private Long inventoryId;
     private Long productId;
     private Long quantity;
     private Date updateAt;
     private SalesLevel salesLevel;
+    private Long clientId;
 }
