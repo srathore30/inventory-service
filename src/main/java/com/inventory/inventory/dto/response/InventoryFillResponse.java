@@ -1,18 +1,18 @@
 package com.inventory.inventory.dto.response;
 
 import com.inventory.inventory.enums.SalesLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.Date;
 
 @Getter
 @Setter
-public class InventoryResponse {
-    private Long inventoryId;
+@AllArgsConstructor
+@NoArgsConstructor
+public class InventoryFillResponse {
     private Long productId;
-    private Long quantity;
-    private Date updateAt;
     private SalesLevel salesLevel;
-    private Long clientId;
+    private Long currentStock;
+    private String message;
 }

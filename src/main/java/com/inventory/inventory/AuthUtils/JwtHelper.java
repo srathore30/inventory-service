@@ -1,12 +1,12 @@
 package com.inventory.inventory.AuthUtils;
 
+import com.inventory.inventory.constant.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.Setter;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import com.inventory.inventory.constant.UserRole;
 
 import java.util.Date;
 import java.util.List;

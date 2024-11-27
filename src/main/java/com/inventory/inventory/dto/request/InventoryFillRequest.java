@@ -4,14 +4,9 @@ import com.inventory.inventory.enums.SalesLevel;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
-
 @Getter
 @Setter
-public class InventoryRequest {
-    private Long productId;
-    private Long quantity;
-    private Date updateAt;
+public class InventoryFillRequest {
     private SalesLevel salesLevel;
-    private Long clientId;
+    private Long quantityToFill;
 }
