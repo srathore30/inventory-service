@@ -1,9 +1,7 @@
 package com.inventory.inventory.service;
 
 import com.inventory.inventory.constant.ApiErrorCodes;
-import com.inventory.inventory.dto.request.InventoryFillRequest;
-import com.inventory.inventory.dto.request.InventoryRequest;
-import com.inventory.inventory.dto.request.InventoryUpdateRequest;
+import com.inventory.inventory.dto.request.*;
 import com.inventory.inventory.dto.response.InventoryFillResponse;
 import com.inventory.inventory.dto.response.InventoryResponse;
 import com.inventory.inventory.dto.response.InventoryUpdateResponse;
@@ -19,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -74,12 +73,45 @@ public class InventoryService {
         return entityToUpdateDto(inventoryEntity);
     }
 
+    public List<InventoryUpdateResponse> updateInventoryInBulk(InventoryBulkUpdateReq request) {
+        List<InventoryUpdateResponse> inventoryResponseList = new ArrayList<>();
+        for(InventoryUpdateRequest updateRequest : request.getUpdateRequestList()) {
+            log.info("Inventory Updated Request for Sales Level : {}", updateRequest.getSalesLevel());
+            log.info("Inventory Updated Request for Quantity Sold : {}", updateRequest.getQuantitySold());
+            InventoryEntity inventoryEntity = inventoryRepository.findByProductIdAndSalesLevel(updateRequest.getProductId(), updateRequest.getSalesLevel()).orElseThrow(() ->
+                    new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorCode(), ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorMessage()));
+            inventoryEntity.setSalesLevel(updateRequest.getSalesLevel());
+            if (inventoryEntity.getQuantity() == 0) {
+                throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NULL.getErrorCode(), ApiErrorCodes.INVENTORY_NULL.getErrorMessage());
+            } else if (inventoryEntity.getQuantity() < updateRequest.getQuantitySold()) {
+                throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_LESS_THAN_SOLD.getErrorCode(), ApiErrorCodes.INVENTORY_LESS_THAN_SOLD.getErrorMessage());
+            }
+            inventoryEntity.setQuantity(inventoryEntity.getQuantity() - updateRequest.getQuantitySold());
+            inventoryRepository.save(inventoryEntity);
+            log.info("Inventory Updated Created : {}", inventoryEntity);
+            inventoryResponseList.add(entityToUpdateDto(inventoryEntity));
+        }
+        return inventoryResponseList;
+    }
+
     public InventoryResponse createInventory(InventoryRequest request) {
         log.info("Creating Inventory: {}", request);
         InventoryEntity inventoryEntity = dtoToEntity(request);
         inventoryRepository.save(inventoryEntity);
         log.info("Inventory Created Successfully: {}", inventoryEntity);
         return entityToDto(inventoryEntity);
+    }
+
+    public List<InventoryResponse> createInventoryInBulk(InventoryBulkReq request) {
+        List<InventoryResponse> inventoryResponseList = new ArrayList<>();
+        for(InventoryRequest inventoryRequest : request.getInventoryRequestList()) {
+            log.info("Creating Inventory: {}", request);
+            InventoryEntity inventoryEntity = dtoToEntity(inventoryRequest);
+            inventoryRepository.save(inventoryEntity);
+            log.info("Inventory Created Successfully: {}", inventoryEntity);
+            inventoryResponseList.add(entityToDto(inventoryEntity));
+        }
+        return inventoryResponseList;
     }
     public PaginatedResp<InventoryResponse> getInventory(Long productId, int page, int pageSize, String sortBy, String sortDirection) {
         log.info("Fetching Inventory: {} ", productId);
