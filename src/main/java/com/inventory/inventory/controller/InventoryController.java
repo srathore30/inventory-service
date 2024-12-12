@@ -49,6 +49,11 @@ public class InventoryController {
     public ResponseEntity<PaginatedResp<InventoryResponse>> getAllInventory(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(defaultValue = "createdDate") String sortBy, @RequestParam(defaultValue = "desc") String sortDirection) {
         return new ResponseEntity<>(inventoryService.getAllInventory(page, pageSize, sortBy, sortDirection), HttpStatus.OK);
     }
+    @GetMapping("/inventoryWithProductName/all/{clientId}")
+    @UserAuthorization(allowedRoles = {UserRole.ClientFMCG,UserRole.Create_Manager, UserRole.Edit_Manager, UserRole.Delete_Manager,UserRole.View_Manager,UserRole.Manager})
+    public ResponseEntity<PaginatedResp<InventoryResponse>> inventoryWithProductName(@PathVariable Long clientId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(defaultValue = "createdDate") String sortBy, @RequestParam(defaultValue = "desc") String sortDirection) {
+        return new ResponseEntity<>(inventoryService.inventoryWithProductName(clientId, page, pageSize, sortBy, sortDirection), HttpStatus.OK);
+    }
 
     @GetMapping("getAllInventoryByClinetFmcgId/{clientFmcgId}")
     @UserAuthorization(allowedRoles = {UserRole.ClientFMCG,UserRole.Create_Manager, UserRole.Edit_Manager, UserRole.Delete_Manager,UserRole.View_Manager,UserRole.Manager})

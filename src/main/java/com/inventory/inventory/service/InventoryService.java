@@ -9,6 +9,7 @@ import com.inventory.inventory.dto.response.PaginatedResp;
 import com.inventory.inventory.entity.InventoryEntity;
 import com.inventory.inventory.exception.NoSuchElementFoundException;
 import com.inventory.inventory.repo.InventoryRepository;
+import com.inventory.inventory.utill.ProductServiceClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class InventoryService {
     private final InventoryRepository inventoryRepository;
+    private final ProductServiceClient productServiceClient;
 
     public InventoryEntity dtoToEntity(InventoryRequest request) {
         InventoryEntity inventoryEntity = new InventoryEntity();
@@ -141,6 +143,43 @@ public class InventoryService {
         return entityToFillUpdateDto(inventoryEntity);
     }
 
+    public PaginatedResp<InventoryResponse> inventoryWithProductName(Long clientId, int page, int pageSize, String sortBy, String sortDirection) {
+        if(clientId == 0) {
+            List<InventoryEntity> all = inventoryRepository.findAll();
+            if (all.isEmpty()) {
+                throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorCode(), ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorMessage());
+            }
+            Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+            Pageable pageable = PageRequest.of(page, pageSize, sort);
+            Page<InventoryEntity> allInventory = inventoryRepository.findAll(pageable);
+            List<InventoryResponse> collect = new ArrayList<>();
+            for (InventoryEntity inventoryEntity : allInventory.getContent()) {
+                InventoryResponse inventoryResponse = entityToDto(inventoryEntity);
+                inventoryResponse.setProductRes(productServiceClient.getProduct(inventoryEntity.getProductId()));
+                collect.add(inventoryResponse);
+            }
+            log.info("Fetched All Successfully: {} ", collect);
+            return PaginatedResp.<InventoryResponse>builder().totalElements(allInventory.getTotalElements()).totalPages(allInventory.getTotalPages()).page(page).content(collect).build();
+        }else{
+            List<InventoryEntity> all = inventoryRepository.findAll();
+            if (all.isEmpty()) {
+                throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorCode(), ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorMessage());
+            }
+            Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+            Pageable pageable = PageRequest.of(page, pageSize, sort);
+            Page<InventoryEntity> allInventory = inventoryRepository.findByClientId(clientId, pageable);
+            List<InventoryResponse> collect = new ArrayList<>();
+            for (InventoryEntity inventoryEntity : allInventory.getContent()) {
+                InventoryResponse inventoryResponse = entityToDto(inventoryEntity);
+                inventoryResponse.setProductRes(productServiceClient.getProduct(inventoryEntity.getProductId()));
+                collect.add(inventoryResponse);
+            }
+            log.info("Fetched All Successfully: {} ", collect);
+            return PaginatedResp.<InventoryResponse>builder().totalElements(allInventory.getTotalElements()).totalPages(allInventory.getTotalPages()).page(page).content(collect).build();
+
+        }
+    }
+
     public PaginatedResp<InventoryResponse> getAllInventory(int page, int pageSize, String sortBy, String sortDirection) {
         List<InventoryEntity> all = inventoryRepository.findAll();
         if(all.isEmpty()){
@@ -153,7 +192,6 @@ public class InventoryService {
         log.info("Fetched All Successfully: {} ", collect);
         return PaginatedResp.<InventoryResponse>builder().totalElements(allInventory.getTotalElements()).totalPages(allInventory.getTotalPages()).page(page).content(collect).build();
     }
-
     public PaginatedResp<InventoryResponse> getAllInventoryByClientFmcgId(Long clientFmcgId, int page, int pageSize, String sortBy, String sortDirection) {
         log.info("Fetching Inventory: {} ", clientFmcgId);
         Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();

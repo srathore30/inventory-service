@@ -21,6 +21,9 @@ spring:
       enabled: false
   application:
     name: inventory-service
+product:
+  getProduct:
+    url: http://localhost:9093/product-service/products/
 
 server:
   port: 9095

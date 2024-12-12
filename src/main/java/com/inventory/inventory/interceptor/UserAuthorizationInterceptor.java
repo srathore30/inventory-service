@@ -2,6 +2,7 @@ package com.inventory.inventory.interceptor;
 
 
 import com.inventory.inventory.AuthUtils.JwtHelper;
+import com.inventory.inventory.Configs.TokenContext;
 import com.inventory.inventory.constant.UserRole;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -38,6 +39,7 @@ public class UserAuthorizationInterceptor implements HandlerInterceptor {
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     return false;
                 }
+                TokenContext.setToken(token);
                 if(!validateToken(token)){
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     return false;
