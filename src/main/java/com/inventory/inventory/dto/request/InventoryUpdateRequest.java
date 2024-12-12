@@ -8,5 +8,6 @@ import lombok.Setter;
 @Setter
 public class InventoryUpdateRequest {
     private SalesLevel salesLevel;
+    private Long productId;
     private Long quantitySold;
 }
