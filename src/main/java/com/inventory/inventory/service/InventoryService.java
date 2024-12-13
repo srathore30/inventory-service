@@ -10,6 +10,7 @@ import com.inventory.inventory.entity.InventoryEntity;
 import com.inventory.inventory.exception.NoSuchElementFoundException;
 import com.inventory.inventory.repo.InventoryRepository;
 import com.inventory.inventory.utill.ProductServiceClient;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -96,6 +97,7 @@ public class InventoryService {
         return inventoryResponseList;
     }
 
+    @Transactional
     public InventoryResponse createInventory(InventoryRequest request) {
         log.info("Creating Inventory: {}", request);
         Long clientId = request.getClientId();
@@ -109,9 +111,15 @@ public class InventoryService {
         return entityToDto(inventoryEntity);
     }
 
+    @Transactional
     public List<InventoryResponse> createInventoryInBulk(InventoryBulkReq request) {
         List<InventoryResponse> inventoryResponseList = new ArrayList<>();
         for(InventoryRequest inventoryRequest : request.getInventoryRequestList()) {
+            Long clientId = inventoryRequest.getClientId();
+            Long productId = inventoryRequest.getProductId();
+            inventoryRepository.findByClientIdAndProductId(clientId, productId).ifPresent(inventoryEntity1 -> {
+                throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_ALREADY_EXISTS.getErrorCode(), ApiErrorCodes.INVENTORY_ALREADY_EXISTS.getErrorMessage());
+            });
             log.info("Creating Inventory: {}", request);
             InventoryEntity inventoryEntity = dtoToEntity(inventoryRequest);
             inventoryRepository.save(inventoryEntity);
@@ -150,10 +158,6 @@ public class InventoryService {
 
     public PaginatedResp<InventoryResponse> inventoryWithProductName(Long clientId, int page, int pageSize, String sortBy, String sortDirection) {
         if(clientId == 0) {
-            List<InventoryEntity> all = inventoryRepository.findAll();
-            if (all.isEmpty()) {
-                throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorCode(), ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorMessage());
-            }
             Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
             Pageable pageable = PageRequest.of(page, pageSize, sort);
             Page<InventoryEntity> allInventory = inventoryRepository.findAll(pageable);
