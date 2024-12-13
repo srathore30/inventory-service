@@ -80,7 +80,7 @@ public class InventoryService {
         for(InventoryUpdateRequest updateRequest : request.getUpdateRequestList()) {
             log.info("Inventory Updated Request for Sales Level : {}", updateRequest.getSalesLevel());
             log.info("Inventory Updated Request for Quantity Sold : {}", updateRequest.getQuantitySold());
-            InventoryEntity inventoryEntity = inventoryRepository.findByProductIdAndSalesLevel(updateRequest.getProductId(), updateRequest.getSalesLevel()).orElseThrow(() ->
+            InventoryEntity inventoryEntity = inventoryRepository.findByClientIdAndProductIdAndSalesLevel(updateRequest.getClientId(), updateRequest.getProductId(), updateRequest.getSalesLevel()).orElseThrow(() ->
                     new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorCode(), ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorMessage()));
             inventoryEntity.setSalesLevel(updateRequest.getSalesLevel());
             if (inventoryEntity.getQuantity() == 0) {
@@ -90,7 +90,7 @@ public class InventoryService {
             }
             inventoryEntity.setQuantity(inventoryEntity.getQuantity() - updateRequest.getQuantitySold());
             inventoryRepository.save(inventoryEntity);
-            log.info("Inventory Updated Created : {}", inventoryEntity);
+            log.info("Inventory Updated for particular client and product : {}", inventoryEntity);
             inventoryResponseList.add(entityToUpdateDto(inventoryEntity));
         }
         return inventoryResponseList;
@@ -98,6 +98,11 @@ public class InventoryService {
 
     public InventoryResponse createInventory(InventoryRequest request) {
         log.info("Creating Inventory: {}", request);
+        Long clientId = request.getClientId();
+        Long productId = request.getProductId();
+        inventoryRepository.findByClientIdAndProductId(clientId, productId).ifPresent(inventoryEntity -> {
+            throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_ALREADY_EXISTS.getErrorCode(), ApiErrorCodes.INVENTORY_ALREADY_EXISTS.getErrorMessage());
+        });
         InventoryEntity inventoryEntity = dtoToEntity(request);
         inventoryRepository.save(inventoryEntity);
         log.info("Inventory Created Successfully: {}", inventoryEntity);

@@ -15,4 +15,6 @@ public interface InventoryRepository extends JpaRepository<InventoryEntity, Long
 
     Optional<InventoryEntity> findByProductIdAndSalesLevel(Long productId, SalesLevel salesLevel);
     Page<InventoryEntity> findByClientId(Long clientId, Pageable pageable);
+    Optional<InventoryEntity> findByClientIdAndProductId(Long clientId, Long productId);
+    Optional<InventoryEntity> findByClientIdAndProductIdAndSalesLevel(Long clientId, Long productId, SalesLevel salesLevel);
 }

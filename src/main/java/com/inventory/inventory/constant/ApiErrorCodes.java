@@ -11,7 +11,8 @@ public enum ApiErrorCodes implements Error {
     PRODUCT__PRICE_NOT_FOUND(1005, "Product price not found"),
     INVENTORY_NOT_FOUND(1006, "Inventory not found"),
     INVENTORY_NULL(1007, "Inventory is null"),
-    INVENTORY_LESS_THAN_SOLD(1008, "Inventory less than sold quantity");
+    INVENTORY_LESS_THAN_SOLD(1008, "Inventory less than sold quantity"),
+    INVENTORY_ALREADY_EXISTS(1009,"Inventory already exists" );
 
     private int errorCode;
     private String errorMessage;

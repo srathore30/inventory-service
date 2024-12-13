@@ -68,7 +68,7 @@ public class InventoryController {
         return new ResponseEntity<>(inventoryResponseList, HttpStatus.OK);
     }
 
-    @PostMapping("/updateInventoryInBulk")
+    @PutMapping("/updateInventoryInBulk")
     @UserAuthorization(allowedRoles = {UserRole.ClientFMCG,UserRole.Create_Manager, UserRole.Edit_Manager, UserRole.Delete_Manager,UserRole.View_Manager,UserRole.Manager})
     public ResponseEntity<List<InventoryUpdateResponse>> updateInventoryInBulk(@RequestBody InventoryBulkUpdateReq inventoryBulkReq){
         List<InventoryUpdateResponse> inventoryResponseList = inventoryService.updateInventoryInBulk(inventoryBulkReq);
