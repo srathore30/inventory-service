@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -211,5 +212,14 @@ public class InventoryService {
         }
         List<InventoryResponse> inventoryList = inventoryByClientId.getContent().stream().map(this::entityToDto).toList();
         return PaginatedResp.<InventoryResponse>builder().totalElements(inventoryByClientId.getTotalElements()).totalPages(inventoryByClientId.getTotalPages()).page(page).content(inventoryList).build();
+    }
+
+    public InventoryResponse getInventoryByClientFmcgIdAndProductId(Long clientFmcgId, Long productId) {
+        log.info("Fetching inventory By Client-FMCG id and ProductId");
+        Optional<InventoryEntity> byClientIdAndProductId = inventoryRepository.findByClientIdAndProductId(clientFmcgId, productId);
+        if (byClientIdAndProductId.isEmpty()){
+            throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorCode(), ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorMessage());
+        }
+        return entityToDto(byClientIdAndProductId.get());
     }
 }
