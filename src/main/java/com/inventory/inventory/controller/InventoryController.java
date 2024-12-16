@@ -26,10 +26,10 @@ public class InventoryController {
         return new ResponseEntity<>(inventoryService.createInventory(request), HttpStatus.OK);
     }
 
-    @PutMapping("/inventory/update/{productId}")
+    @PutMapping("/inventory/update/{productId}/{clientFmcgId}")
     @UserAuthorization(allowedRoles = {UserRole.ClientFMCG,UserRole.Create_Manager, UserRole.Edit_Manager, UserRole.Delete_Manager,UserRole.View_Manager,UserRole.Manager})
-    public ResponseEntity<InventoryUpdateResponse> updateInventory(@PathVariable Long productId, @RequestBody InventoryUpdateRequest request) {
-        return new ResponseEntity<>(inventoryService.updateInventory(productId, request), HttpStatus.OK);
+    public ResponseEntity<InventoryUpdateResponse> updateInventory(@PathVariable Long productId, @PathVariable Long clientFmcgId, @RequestBody InventoryUpdateRequest request) {
+        return new ResponseEntity<>(inventoryService.updateInventory(clientFmcgId,productId, request), HttpStatus.OK);
     }
 
     @GetMapping("/inventory/{productId}")
