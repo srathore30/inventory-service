@@ -75,6 +75,9 @@ public class InventoryController {
         return new ResponseEntity<>(inventoryResponseList, HttpStatus.OK);
     }
 
-
-
+    @GetMapping("getInventoryByClientFmcgIdAndProductId")
+    @UserAuthorization(allowedRoles = {UserRole.ClientFMCG,UserRole.Create_Manager, UserRole.Edit_Manager, UserRole.Delete_Manager,UserRole.View_Manager,UserRole.Manager})
+    public ResponseEntity<InventoryResponse> getInventoryByClientFmcgIdAndProductId(@RequestParam(defaultValue = "clientFmcgId") Long clientFmcgId,@RequestParam(defaultValue = "productId") Long productId){
+        return new ResponseEntity<>(inventoryService.getInventoryByClientFmcgIdAndProductId(clientFmcgId,productId), HttpStatus.OK);
+    }
 }
