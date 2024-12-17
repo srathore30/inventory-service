@@ -22,7 +22,7 @@ public class InventoryController {
 
     @PostMapping("/inventory/create")
     @UserAuthorization(allowedRoles = {UserRole.ClientFMCG,UserRole.Create_Manager, UserRole.Edit_Manager, UserRole.Delete_Manager,UserRole.View_Manager,UserRole.Manager})
-    public ResponseEntity<InventoryResponse> updateInventory(@RequestBody InventoryRequest request) {
+    public ResponseEntity<InventoryResponse> createInventory(@RequestBody InventoryRequest request) {
         return new ResponseEntity<>(inventoryService.createInventory(request), HttpStatus.OK);
     }
 
@@ -53,6 +53,12 @@ public class InventoryController {
     @UserAuthorization(allowedRoles = {UserRole.ClientFMCG,UserRole.Create_Manager, UserRole.Edit_Manager, UserRole.Delete_Manager,UserRole.View_Manager,UserRole.Manager})
     public ResponseEntity<PaginatedResp<InventoryResponse>> inventoryWithProductName(@PathVariable Long clientId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(defaultValue = "createdDate") String sortBy, @RequestParam(defaultValue = "desc") String sortDirection) {
         return new ResponseEntity<>(inventoryService.inventoryWithProductName(clientId, page, pageSize, sortBy, sortDirection), HttpStatus.OK);
+    }
+
+    @GetMapping("/inventoryWithProductNameWithClientFmcgResponse/all/{clientId}")
+    @UserAuthorization(allowedRoles = {UserRole.ClientFMCG,UserRole.Create_Manager, UserRole.Edit_Manager, UserRole.Delete_Manager,UserRole.View_Manager,UserRole.Manager})
+    public ResponseEntity<PaginatedResp<InventoryResponse>> inventoryWithProductNameWithClientFmcgResponse(@PathVariable Long clientId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(defaultValue = "createdDate") String sortBy, @RequestParam(defaultValue = "desc") String sortDirection) {
+        return new ResponseEntity<>(inventoryService.inventoryWithProductNameWithClientFmcgResponse(clientId, page, pageSize, sortBy, sortDirection), HttpStatus.OK);
     }
 
     @GetMapping("getAllInventoryByClinetFmcgId/{clientFmcgId}")

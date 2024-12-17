@@ -15,5 +15,6 @@ public class InventoryResponse {
     private Date updateAt;
     private SalesLevel salesLevel;
     private Long clientId;
+    private ClientFMCGResponse clientFMCGResponse;
     private ProductRes productRes;
 }
