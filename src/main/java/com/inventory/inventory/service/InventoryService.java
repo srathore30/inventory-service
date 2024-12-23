@@ -9,6 +9,7 @@ import com.inventory.inventory.dto.response.PaginatedResp;
 import com.inventory.inventory.entity.InventoryEntity;
 import com.inventory.inventory.exception.NoSuchElementFoundException;
 import com.inventory.inventory.repo.InventoryRepository;
+import com.inventory.inventory.utill.ExternalRestService;
 import com.inventory.inventory.utill.ProductServiceClient;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 public class InventoryService {
     private final InventoryRepository inventoryRepository;
     private final ProductServiceClient productServiceClient;
+    private final ExternalRestService externalRestService;
 
     public InventoryEntity dtoToEntity(InventoryRequest request) {
         InventoryEntity inventoryEntity = new InventoryEntity();
@@ -66,11 +68,11 @@ public class InventoryService {
         InventoryEntity inventoryEntity = inventoryRepository.findByClientIdAndProductIdAndSalesLevel(clientFmcgId,productId, request.getSalesLevel()).orElseThrow(() ->
                 new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorCode(),ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorMessage()));
         inventoryEntity.setSalesLevel(request.getSalesLevel());
-        if (inventoryEntity.getQuantity() == 0) {
-            throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NULL.getErrorCode(),ApiErrorCodes.INVENTORY_NULL.getErrorMessage());
-        }else if (inventoryEntity.getQuantity() < request.getQuantitySold()) {
-            throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_LESS_THAN_SOLD.getErrorCode(),ApiErrorCodes.INVENTORY_LESS_THAN_SOLD.getErrorMessage());
-        }
+//        if (inventoryEntity.getQuantity() == 0) {
+//            throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NULL.getErrorCode(),ApiErrorCodes.INVENTORY_NULL.getErrorMessage());
+//        }else if (inventoryEntity.getQuantity() < request.getQuantitySold()) {
+//            throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_LESS_THAN_SOLD.getErrorCode(),ApiErrorCodes.INVENTORY_LESS_THAN_SOLD.getErrorMessage());
+//        }
         inventoryEntity.setQuantity(inventoryEntity.getQuantity() - request.getQuantitySold());
         inventoryRepository.save(inventoryEntity);
         log.info("Inventory Updated Created : {}", inventoryEntity);
@@ -85,11 +87,11 @@ public class InventoryService {
             InventoryEntity inventoryEntity = inventoryRepository.findByClientIdAndProductIdAndSalesLevel(updateRequest.getClientId(), updateRequest.getProductId(), updateRequest.getSalesLevel()).orElseThrow(() ->
                     new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorCode(), ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorMessage()));
             inventoryEntity.setSalesLevel(updateRequest.getSalesLevel());
-            if (inventoryEntity.getQuantity() == 0) {
-                throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NULL.getErrorCode(), ApiErrorCodes.INVENTORY_NULL.getErrorMessage());
-            } else if (inventoryEntity.getQuantity() < updateRequest.getQuantitySold()) {
-                throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_LESS_THAN_SOLD.getErrorCode(), ApiErrorCodes.INVENTORY_LESS_THAN_SOLD.getErrorMessage());
-            }
+//            if (inventoryEntity.getQuantity() == 0) {
+//                throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NULL.getErrorCode(), ApiErrorCodes.INVENTORY_NULL.getErrorMessage());
+//            } else if (inventoryEntity.getQuantity() < updateRequest.getQuantitySold()) {
+//                throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_LESS_THAN_SOLD.getErrorCode(), ApiErrorCodes.INVENTORY_LESS_THAN_SOLD.getErrorMessage());
+//            }
             inventoryEntity.setQuantity(inventoryEntity.getQuantity() - updateRequest.getQuantitySold());
             inventoryRepository.save(inventoryEntity);
             log.info("Inventory Updated for particular client and product : {}", inventoryEntity);
@@ -103,13 +105,20 @@ public class InventoryService {
         log.info("Creating Inventory: {}", request);
         Long clientId = request.getClientId();
         Long productId = request.getProductId();
-        inventoryRepository.findByClientIdAndProductId(clientId, productId).ifPresent(inventoryEntity -> {
-            throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_ALREADY_EXISTS.getErrorCode(), ApiErrorCodes.INVENTORY_ALREADY_EXISTS.getErrorMessage());
-        });
-        InventoryEntity inventoryEntity = dtoToEntity(request);
-        inventoryRepository.save(inventoryEntity);
-        log.info("Inventory Created Successfully: {}", inventoryEntity);
-        return entityToDto(inventoryEntity);
+        Optional<InventoryEntity> optionalInventoryEntity = inventoryRepository.findByClientIdAndProductId(clientId, productId);
+        if(optionalInventoryEntity.isEmpty()){
+            InventoryEntity inventoryEntity = dtoToEntity(request);
+            inventoryRepository.save(inventoryEntity);
+            log.info("Inventory Created Successfully: {}", inventoryEntity);
+            return entityToDto(inventoryEntity);
+        }else{
+            optionalInventoryEntity.get().setQuantity(optionalInventoryEntity.get().getQuantity() + request.getQuantity());
+            optionalInventoryEntity.get().setSalesLevel(request.getSalesLevel());
+            inventoryRepository.save(optionalInventoryEntity.get());
+            log.info("Inventory Created Successfully: {}", optionalInventoryEntity.get());
+            return entityToDto(optionalInventoryEntity.get());
+        }
+
     }
 
     @Transactional
@@ -118,14 +127,19 @@ public class InventoryService {
         for(InventoryRequest inventoryRequest : request.getInventoryRequestList()) {
             Long clientId = inventoryRequest.getClientId();
             Long productId = inventoryRequest.getProductId();
-            inventoryRepository.findByClientIdAndProductId(clientId, productId).ifPresent(inventoryEntity1 -> {
-                throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_ALREADY_EXISTS.getErrorCode(), ApiErrorCodes.INVENTORY_ALREADY_EXISTS.getErrorMessage());
-            });
-            log.info("Creating Inventory: {}", request);
-            InventoryEntity inventoryEntity = dtoToEntity(inventoryRequest);
-            inventoryRepository.save(inventoryEntity);
-            log.info("Inventory Created Successfully: {}", inventoryEntity);
-            inventoryResponseList.add(entityToDto(inventoryEntity));
+            Optional<InventoryEntity> optionalInventoryEntity = inventoryRepository.findByClientIdAndProductId(clientId, productId);
+            if(optionalInventoryEntity.isEmpty()){
+                InventoryEntity inventoryEntity = dtoToEntity(inventoryRequest);
+                inventoryRepository.save(inventoryEntity);
+                log.info("Inventory Created Successfully: {}", inventoryEntity);
+                inventoryResponseList.add(entityToDto(inventoryEntity));
+            }else{
+                optionalInventoryEntity.get().setQuantity(optionalInventoryEntity.get().getQuantity() + inventoryRequest.getQuantity());
+                optionalInventoryEntity.get().setSalesLevel(inventoryRequest.getSalesLevel());
+                inventoryRepository.save(optionalInventoryEntity.get());
+                log.info("Inventory Created Successfully: {}", optionalInventoryEntity.get());
+                inventoryResponseList.add(entityToDto(optionalInventoryEntity.get()));
+            }
         }
         return inventoryResponseList;
     }
@@ -155,6 +169,42 @@ public class InventoryService {
         inventoryRepository.save(inventoryEntity);
         log.info("Inventory Filled Successfully: {} ", inventoryEntity);
         return entityToFillUpdateDto(inventoryEntity);
+    }
+
+    public PaginatedResp<InventoryResponse> inventoryWithProductNameWithClientFmcgResponse(Long clientId, int page, int pageSize, String sortBy, String sortDirection) {
+        if(clientId == 0) {
+            Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+            Pageable pageable = PageRequest.of(page, pageSize, sort);
+            Page<InventoryEntity> allInventory = inventoryRepository.findAll(pageable);
+            List<InventoryResponse> collect = new ArrayList<>();
+            for (InventoryEntity inventoryEntity : allInventory.getContent()) {
+                InventoryResponse inventoryResponse = entityToDto(inventoryEntity);
+                inventoryResponse.setProductRes(productServiceClient.getProduct(inventoryEntity.getProductId()));
+                inventoryResponse.setClientFMCGResponse(externalRestService.getClient(inventoryEntity.getClientId()));
+                collect.add(inventoryResponse);
+            }
+            log.info("Fetched All Successfully: {} ", collect);
+            return PaginatedResp.<InventoryResponse>builder().totalElements(allInventory.getTotalElements()).totalPages(allInventory.getTotalPages()).page(page).content(collect).build();
+        }else{
+            List<InventoryEntity> all = inventoryRepository.findAll();
+            if (all.isEmpty()) {
+                throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorCode(), ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorMessage());
+            }
+            Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+            Pageable pageable = PageRequest.of(page, pageSize, sort);
+            Page<InventoryEntity> allInventory = inventoryRepository.findByClientId(clientId, pageable);
+            List<InventoryResponse> collect = new ArrayList<>();
+            for (InventoryEntity inventoryEntity : allInventory.getContent()) {
+                InventoryResponse inventoryResponse = entityToDto(inventoryEntity);
+                inventoryResponse.setProductRes(productServiceClient.getProduct(inventoryEntity.getProductId()));
+                inventoryResponse.setClientFMCGResponse(externalRestService.getClient(inventoryEntity.getClientId()));
+                collect.add(inventoryResponse);
+            }
+            collect.get(0).setClientFMCGResponse(externalRestService.getClient(clientId));
+            log.info("Fetched All Successfully: {} ", collect);
+            return PaginatedResp.<InventoryResponse>builder().totalElements(allInventory.getTotalElements()).totalPages(allInventory.getTotalPages()).page(page).content(collect).build();
+
+        }
     }
 
     public PaginatedResp<InventoryResponse> inventoryWithProductName(Long clientId, int page, int pageSize, String sortBy, String sortDirection) {
