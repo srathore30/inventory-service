@@ -68,11 +68,11 @@ public class InventoryService {
         InventoryEntity inventoryEntity = inventoryRepository.findByClientIdAndProductIdAndSalesLevel(clientFmcgId,productId, request.getSalesLevel()).orElseThrow(() ->
                 new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorCode(),ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorMessage()));
         inventoryEntity.setSalesLevel(request.getSalesLevel());
-        if (inventoryEntity.getQuantity() == 0) {
-            throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NULL.getErrorCode(),ApiErrorCodes.INVENTORY_NULL.getErrorMessage());
-        }else if (inventoryEntity.getQuantity() < request.getQuantitySold()) {
-            throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_LESS_THAN_SOLD.getErrorCode(),ApiErrorCodes.INVENTORY_LESS_THAN_SOLD.getErrorMessage());
-        }
+//        if (inventoryEntity.getQuantity() == 0) {
+//            throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NULL.getErrorCode(),ApiErrorCodes.INVENTORY_NULL.getErrorMessage());
+//        }else if (inventoryEntity.getQuantity() < request.getQuantitySold()) {
+//            throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_LESS_THAN_SOLD.getErrorCode(),ApiErrorCodes.INVENTORY_LESS_THAN_SOLD.getErrorMessage());
+//        }
         inventoryEntity.setQuantity(inventoryEntity.getQuantity() - request.getQuantitySold());
         inventoryRepository.save(inventoryEntity);
         log.info("Inventory Updated Created : {}", inventoryEntity);
@@ -87,11 +87,11 @@ public class InventoryService {
             InventoryEntity inventoryEntity = inventoryRepository.findByClientIdAndProductIdAndSalesLevel(updateRequest.getClientId(), updateRequest.getProductId(), updateRequest.getSalesLevel()).orElseThrow(() ->
                     new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorCode(), ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorMessage()));
             inventoryEntity.setSalesLevel(updateRequest.getSalesLevel());
-            if (inventoryEntity.getQuantity() == 0) {
-                throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NULL.getErrorCode(), ApiErrorCodes.INVENTORY_NULL.getErrorMessage());
-            } else if (inventoryEntity.getQuantity() < updateRequest.getQuantitySold()) {
-                throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_LESS_THAN_SOLD.getErrorCode(), ApiErrorCodes.INVENTORY_LESS_THAN_SOLD.getErrorMessage());
-            }
+//            if (inventoryEntity.getQuantity() == 0) {
+//                throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NULL.getErrorCode(), ApiErrorCodes.INVENTORY_NULL.getErrorMessage());
+//            } else if (inventoryEntity.getQuantity() < updateRequest.getQuantitySold()) {
+//                throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_LESS_THAN_SOLD.getErrorCode(), ApiErrorCodes.INVENTORY_LESS_THAN_SOLD.getErrorMessage());
+//            }
             inventoryEntity.setQuantity(inventoryEntity.getQuantity() - updateRequest.getQuantitySold());
             inventoryRepository.save(inventoryEntity);
             log.info("Inventory Updated for particular client and product : {}", inventoryEntity);
