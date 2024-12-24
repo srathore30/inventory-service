@@ -13,5 +13,7 @@ public class ProductRes {
     String sku;
     String unitOfMeasurement;
     Long productId;
+    Double bundleSize;
+    String imageUrl;
     ProductPriceRes productPriceRes;
 }
