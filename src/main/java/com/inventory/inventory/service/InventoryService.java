@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -266,5 +267,21 @@ public class InventoryService {
             throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorCode(), ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorMessage());
         }
         return entityToDto(byClientIdAndProductId.get());
+    }
+
+    public PaginatedResp<InventoryResponse> getAllClientInventoryByMemberId(Long memberId,  int page, int pageSize, String sortBy, String sortDirection) {
+        log.info("Fetching Inventory: {} ", memberId);
+        Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, pageSize, sort);
+        Set<Long> clientIds = externalRestService.getClientIdsByMemberId(memberId);
+        Page<InventoryEntity> entityPaginatedResp = inventoryRepository.findByClientIdList(clientIds, pageable);
+        List<InventoryResponse> inventoryResponseList = new ArrayList<>();
+        for (InventoryEntity inventoryEntity : entityPaginatedResp.getContent()) {
+            InventoryResponse inventoryResponse = entityToDto(inventoryEntity);
+            inventoryResponse.setClientFMCGResponse(externalRestService.getClient(inventoryEntity.getClientId()));
+            inventoryResponse.setProductRes(productServiceClient.getProduct(inventoryEntity.getProductId()));
+            inventoryResponseList.add(inventoryResponse);
+        }
+        return new PaginatedResp<>(entityPaginatedResp.getTotalElements(), entityPaginatedResp.getTotalPages(), page, inventoryResponseList);
     }
 }

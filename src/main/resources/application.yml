@@ -25,6 +25,8 @@ product:
   getProduct:
     url: http://localhost:9093/product-service/products/
 clients:
+  getAllIds:
+      url: http://localhost:8080/client-fmcg/getAllClientFmcgIdsByMemberId
   service:
     url: http://localhost:8080/client-fmcg/getClientFMCGById
 server:
