@@ -67,6 +67,7 @@ public class InventoryController {
         return new ResponseEntity<>(inventoryService.getAllInventoryByClientFmcgId(clientFmcgId,page, pageSize, sortBy, sortDirection), HttpStatus.OK);
     }
 
+
     @PostMapping("/createInventoryInBulk")
     @UserAuthorization(allowedRoles = {UserRole.ClientFMCG,UserRole.Create_Manager, UserRole.Edit_Manager, UserRole.Delete_Manager,UserRole.View_Manager,UserRole.Manager,UserRole.Reporting_Manager, UserRole.Super_Admin})
     public ResponseEntity<List<InventoryResponse>> createInventoryInBulk(@RequestBody InventoryBulkReq inventoryBulkReq){
@@ -86,4 +87,11 @@ public class InventoryController {
     public ResponseEntity<InventoryResponse> getInventoryByClientFmcgIdAndProductId(@RequestParam(defaultValue = "clientFmcgId") Long clientFmcgId,@RequestParam(defaultValue = "productId") Long productId){
         return new ResponseEntity<>(inventoryService.getInventoryByClientFmcgIdAndProductId(clientFmcgId,productId), HttpStatus.OK);
     }
+
+    @GetMapping("getAllClientInventoryByMemberId/{memberId}")
+    @UserAuthorization(allowedRoles = {UserRole.ClientFMCG,UserRole.Create_Manager, UserRole.Edit_Manager, UserRole.Delete_Manager,UserRole.View_Manager,UserRole.Manager,UserRole.Reporting_Manager, UserRole.Super_Admin})
+    public ResponseEntity<PaginatedResp<InventoryResponse>> getAllClientInventoryByMemberId(@PathVariable Long memberId,@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(defaultValue = "createdDate") String sortBy, @RequestParam(defaultValue = "desc") String sortDirection){
+        return new ResponseEntity<>(inventoryService.getAllClientInventoryByMemberId(memberId,page, pageSize, sortBy, sortDirection), HttpStatus.OK);
+    }
+
 }
