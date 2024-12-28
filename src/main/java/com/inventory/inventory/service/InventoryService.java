@@ -278,6 +278,8 @@ public class InventoryService {
         List<InventoryResponse> inventoryResponseList = new ArrayList<>();
         for (InventoryEntity inventoryEntity : entityPaginatedResp.getContent()) {
             InventoryResponse inventoryResponse = entityToDto(inventoryEntity);
+            inventoryResponse.setClientFMCGResponse(externalRestService.getClient(inventoryEntity.getClientId()));
+            inventoryResponse.setProductRes(productServiceClient.getProduct(inventoryEntity.getProductId()));
             inventoryResponseList.add(inventoryResponse);
         }
         return new PaginatedResp<>(entityPaginatedResp.getTotalElements(), entityPaginatedResp.getTotalPages(), page, inventoryResponseList);
