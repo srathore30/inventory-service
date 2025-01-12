@@ -33,7 +33,9 @@ server:
   port: 9095
   servlet:
     context-path: /inventory-service
-
+member:
+  getMember:
+    url: http://localhost:8080/getMemberById
 springdoc:
   api-docs:
     path: /v3/api-docs
