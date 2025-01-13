@@ -2,6 +2,7 @@ package com.inventory.inventory.utill;
 
 import com.inventory.inventory.Configs.TokenContext;
 import com.inventory.inventory.dto.response.ClientFMCGResponse;
+import com.inventory.inventory.dto.response.MemberResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +25,8 @@ public class ExternalRestService {
     private final RestTemplate restTemplate;
     @Value("${clients.service.url}")
     private String clientServiceUrl;
+    @Value("${member.getMember.url}")
+    private String getMemberUrl;
     @Value("${clients.getAllIds.url}")
     private String clientIdsServiceUrl;
     private HttpHeaders createHeaders() {
@@ -45,6 +48,15 @@ public class ExternalRestService {
         HttpEntity<Void> requestEntity = new HttpEntity<>(createHeaders());
         log.info("Fetch client details with authorization header");
         ResponseEntity<ClientFMCGResponse> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, ClientFMCGResponse.class);
+        return response.getBody();
+    }
+    public MemberResponse getMemberById(Long memberId) {
+        log.info("Get member with id: {}", memberId);
+        String url = getMemberUrl + "/" + memberId;
+        log.info("URL: {}", url);
+        HttpEntity<Void> requestEntity = new HttpEntity<>(createHeaders());
+        log.info("Fetch client details with authorization header");
+        ResponseEntity<MemberResponse> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, MemberResponse.class);
         return response.getBody();
     }
 
