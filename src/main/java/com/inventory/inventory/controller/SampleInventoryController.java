@@ -54,7 +54,7 @@ public class SampleInventoryController {
             @PathVariable Long memberId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int pageSize,
-            @RequestParam(defaultValue = "createdTime") String sortBy,
+            @RequestParam(defaultValue = "createdDate") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection) {
         return new ResponseEntity<>(sampleInventoryService.getAllSampleMemberById(memberId, page, pageSize, sortBy, sortDirection), HttpStatus.OK);
     }
