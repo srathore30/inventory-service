@@ -43,9 +43,9 @@ public class SampleInventoryController {
 
     @PutMapping("/updateSampleInventoryQuantity/{id}/{quantity}")
     @UserAuthorization(allowedRoles = {UserRole.ClientFMCG, UserRole.Edit_Manager, UserRole.Manager, UserRole.Super_Admin})
-    public ResponseEntity<Void> updateSampleInventoryQuantity(@PathVariable Long id, @PathVariable Integer quantity) {
-        sampleInventoryService.updateSampleInventoryQuantity(id, quantity);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<SampleInventoryResponse> updateSampleInventoryQuantity(@PathVariable Long id, @PathVariable Integer quantity) {
+        SampleInventoryResponse sampleInventoryResponse = sampleInventoryService.updateSampleInventoryQuantity(id, quantity);
+        return new ResponseEntity<>(sampleInventoryResponse, HttpStatus.OK);
     }
 
     @GetMapping("/getAllSampleMemberById/{memberId}")

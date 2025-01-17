@@ -70,14 +70,14 @@ public class SampleInventoryService {
         sampleInventoryRepo.save(optionalSampleInventory.get());
     }
 
-    public void updateSampleInventoryQuantity(Long id, Integer quantity){
+    public SampleInventoryResponse updateSampleInventoryQuantity(Long id, Integer quantity){
         log.info("deducting Inventory q: {} ", quantity);
         Optional<SampleInventory> optionalSampleInventory = sampleInventoryRepo.findById(id);
         if(optionalSampleInventory.isEmpty() || optionalSampleInventory.get().getStatus() == Status.InActive){
             throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorCode(), ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorMessage());
         }
         optionalSampleInventory.get().setSampleQuantity(quantity);
-        sampleInventoryRepo.save(optionalSampleInventory.get());
+        return mapToDto(sampleInventoryRepo.save(optionalSampleInventory.get()));
     }
 
     public PaginatedResp<SampleInventoryResponse> getAllSampleMemberById(Long memberId, int page, int pageSize, String sortBy, String sortDirection) {
