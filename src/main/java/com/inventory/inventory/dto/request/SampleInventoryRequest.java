@@ -4,11 +4,12 @@ import com.inventory.inventory.enums.SalesLevel;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Date;
+
 @Getter
 @Setter
-public class InventoryUpdateRequest {
-    private SalesLevel salesLevel;
+public class SampleInventoryRequest {
     private Long productId;
-    private Long quantitySold;
-    private Long clientId;
+    private Integer sampleQuantity;
+    private Long memberId;
 }

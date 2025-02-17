@@ -8,13 +8,10 @@ import java.util.Date;
 
 @Getter
 @Setter
-public class InventoryResponse {
-    private Long inventoryId;
+public class SampleInventoryResponse {
+    private Long id;
     private Long productId;
-    private Long quantity;
-    private Date updateAt;
-    private SalesLevel salesLevel;
-    private Long clientId;
-    private ClientFMCGResponse clientFMCGResponse;
+    private Integer sampleQuantity;
+    private MemberResponse memberRes;
     private ProductRes productRes;
 }
