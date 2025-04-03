@@ -7,6 +7,7 @@ import com.inventory.inventory.dto.response.InventoryResponse;
 import com.inventory.inventory.dto.response.InventoryUpdateResponse;
 import com.inventory.inventory.dto.response.PaginatedResp;
 import com.inventory.inventory.entity.InventoryEntity;
+import com.inventory.inventory.enums.SalesLevel;
 import com.inventory.inventory.exception.NoSuchElementFoundException;
 import com.inventory.inventory.repo.InventoryRepository;
 import com.inventory.inventory.utill.ExternalRestService;
@@ -66,7 +67,7 @@ public class InventoryService {
     public InventoryUpdateResponse updateInventory(Long clientFmcgId, Long productId,InventoryUpdateRequest request) {
         log.info("Inventory Updated Request for Sales Level : {}", request.getSalesLevel());
         log.info("Inventory Updated Request for Quantity Sold : {}", request.getQuantitySold());
-        InventoryEntity inventoryEntity = inventoryRepository.findByClientIdAndProductIdAndSalesLevel(clientFmcgId,productId, request.getSalesLevel()).orElseThrow(() ->
+        InventoryEntity inventoryEntity = inventoryRepository.findByClientIdAndProductIdAndSalesLevel(clientFmcgId,productId, SalesLevel.WAREHOUSE).orElseThrow(() ->
                 new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorCode(),ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorMessage()));
         inventoryEntity.setSalesLevel(request.getSalesLevel());
 //        if (inventoryEntity.getQuantity() == 0) {
@@ -85,7 +86,7 @@ public class InventoryService {
         for(InventoryUpdateRequest updateRequest : request.getUpdateRequestList()) {
             log.info("Inventory Updated Request for Sales Level : {}", updateRequest.getSalesLevel());
             log.info("Inventory Updated Request for Quantity Sold : {}", updateRequest.getQuantitySold());
-            InventoryEntity inventoryEntity = inventoryRepository.findByClientIdAndProductIdAndSalesLevel(updateRequest.getClientId(), updateRequest.getProductId(), updateRequest.getSalesLevel()).orElseThrow(() ->
+            InventoryEntity inventoryEntity = inventoryRepository.findByClientIdAndProductIdAndSalesLevel(updateRequest.getClientId(), updateRequest.getProductId(), SalesLevel.WAREHOUSE).orElseThrow(() ->
                     new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorCode(), ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorMessage()));
             inventoryEntity.setSalesLevel(updateRequest.getSalesLevel());
 //            if (inventoryEntity.getQuantity() == 0) {
