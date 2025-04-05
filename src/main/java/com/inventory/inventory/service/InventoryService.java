@@ -64,6 +64,7 @@ public class InventoryService {
         return response;
     }
 
+    @Transactional
     public InventoryUpdateResponse updateInventory(Long clientFmcgId, Long productId,InventoryUpdateRequest request) {
         log.info("Inventory Updated Request for Sales Level : {}", request.getSalesLevel());
         log.info("Inventory Updated Request for Quantity Sold : {}", request.getQuantitySold());
@@ -81,6 +82,7 @@ public class InventoryService {
         return entityToUpdateDto(inventoryEntity);
     }
 
+    @Transactional
     public List<InventoryUpdateResponse> updateInventoryInBulk(InventoryBulkUpdateReq request) {
         List<InventoryUpdateResponse> inventoryResponseList = new ArrayList<>();
         for(InventoryUpdateRequest updateRequest : request.getUpdateRequestList()) {
