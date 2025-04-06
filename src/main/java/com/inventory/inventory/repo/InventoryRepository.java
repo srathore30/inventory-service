@@ -15,7 +15,6 @@ import java.util.Set;
 public interface InventoryRepository extends JpaRepository<InventoryEntity, Long> {
     Page<InventoryEntity> findByProductId(Long productId, Pageable pageable);
 
-    Optional<InventoryEntity> findByProductIdAndSalesLevel(Long productId, SalesLevel salesLevel);
     Page<InventoryEntity> findByClientId(Long clientId, Pageable pageable);
     @Query("SELECT o FROM InventoryEntity o WHERE o.clientId IN :clientIds")
     Page<InventoryEntity> findByClientIdList(Set<Long> clientIds, Pageable pageable);
