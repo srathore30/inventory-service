@@ -82,17 +82,12 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           script: |
             cd ~/sfa-service/inventory-service/
-            echo "Checking if service is running..."
             PID=$(sudo lsof -n -i:9095 | awk 'NR==2 {print $2}')
             if [ -n "$PID" ]; then
-              echo "Killing running service with PID: $PID"
               sudo kill -9 $PID
-            else
-              echo "No service running on port 9095"
             fi
-            echo "Giving execute permission..."
             chmod +x inventoryStartUp.sh
-            echo "Running startup script..."
             ./inventoryStartUp.sh
-            echo "Done starting"
+            echo "Service started"
+      
             
