@@ -98,3 +98,4 @@ jobs:
             echo "Running startup script..."
             ./inventoryStartUp.sh
             echo "Done starting"
+            
