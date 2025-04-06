@@ -84,11 +84,25 @@ jobs:
             cd ~/sfa-service/inventory-service/
             PID=$(sudo lsof -n -i:9095 | awk 'NR==2 {print $2}')
             if [ -n "$PID" ]; then
+              echo "Killing process running on port 9095: $PID"
               sudo kill -9 $PID
+            else
+              echo "No process running on port 9095"
             fi
+
             chmod +x inventoryStartUp.sh
             ./inventoryStartUp.sh
-            echo "Service started"
+            echo "Service startup triggered"
+
+            echo "Tailing logs until Tomcat is confirmed started..."
+            tail -f nohup.out | while read LINE; do
+              echo "$LINE"
+              if [[ "$LINE" == *"Tomcat started on port 9095(http) with context path '/inventory-service'"* ]]; then
+                echo "✅ Detected Tomcat startup, stopping log streaming."
+                pkill -P $$ tail
+              fi
+            done
+      
       
             
             
