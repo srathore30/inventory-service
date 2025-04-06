@@ -90,9 +90,6 @@ jobs:
             else
               echo "No service running on port 9095"
             fi
-            echo "Setting execution permission..."
-            export JAVA_HOME=/usr/local/java/jdk-17.0.12
-            export PATH=$JAVA_HOME/bin:$PATH
             echo "Giving execute permission..."
             chmod +x inventoryStartUp.sh
             echo "Running startup script..."
