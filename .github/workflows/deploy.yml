@@ -93,8 +93,8 @@ jobs:
             echo "Setting execution permission..."
             export JAVA_HOME=/usr/local/java/jdk-17.0.12
             export PATH=$JAVA_HOME/bin:$PATH
+            echo "Giving execute permission..."
             chmod +x inventoryStartUp.sh
-            echo "Starting the service in background..."
-            touch nohup.out
-            nohup ./inventoryStartUp.sh > nohup.out 2>&1 &
-            echo "Deployment completed."
+            echo "Running startup script..."
+            ./inventoryStartUp.sh
+            echo "Done starting"
