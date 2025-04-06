@@ -97,7 +97,7 @@ jobs:
             echo "Tailing logs until Tomcat is confirmed started..."
             tail -f nohup.out | while read LINE; do
               echo "$LINE"
-              if [[ "$LINE" == *"Tomcat started on port 9095(http) with context path '/inventory-service'"* ]]; then
+              if [[ "$LINE" == *"Tomcat started on port 9095 (http) with context path '/inventory-service'"* ]]; then
                 echo "✅ Detected Tomcat startup, stopping log streaming."
                 pkill -P $$ tail
               fi
