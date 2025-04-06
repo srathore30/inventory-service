@@ -1,7 +1,9 @@
 package com.inventory.inventory.utill;
 
 import com.inventory.inventory.Configs.TokenContext;
+import com.inventory.inventory.constant.ApiErrorCodes;
 import com.inventory.inventory.dto.response.ProductRes;
+import com.inventory.inventory.exception.BusinessServiceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,10 +39,16 @@ public class ProductServiceClient {
     }
 
     public ProductRes getProduct(Long productId) {
-        String url = productUrl + productId;
-        HttpEntity<Void> requestEntity = new HttpEntity<>(createHeaders());
-        log.info("Fetch product details with authorization header");
-        ResponseEntity<ProductRes> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, ProductRes.class);
-        return response.getBody();
+        try {
+            log.info("While fetching getProduct from product service client");
+            String url = productUrl + productId;
+            HttpEntity<Void> requestEntity = new HttpEntity<>(createHeaders());
+            log.info("Fetch product details with authorization header");
+            ResponseEntity<ProductRes> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, ProductRes.class);
+            return response.getBody();
+        }catch (Exception e){
+            log.info("Error occurred: " + e.getMessage());
+            throw new BusinessServiceException(ApiErrorCodes.INVALID_INPUT.getErrorCode(), e.getMessage());
+        }
     }
 }
