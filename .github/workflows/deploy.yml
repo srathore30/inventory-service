@@ -94,15 +94,7 @@ jobs:
             export JAVA_HOME=/usr/local/java/jdk-17.0.12
             export PATH=$JAVA_HOME/bin:$PATH
             chmod +x inventoryStartUp.sh
-            echo "Starting the service using nohup.out..."
-            nohup ./inventoryStartUp.sh > nohup.out 2>&1 &
-            echo "Waiting for Tomcat to start..."
+            echo "Starting the service in background..."
             touch nohup.out
-            tail -f nohup.out | while read LINE; do
-              echo "$LINE"
-              if [[ "$LINE" == *"Tomcat started on port 9095 (http) with context path '/inventory-service'"* ]]; then
-                echo "Detected Tomcat startup, stopping log streaming."
-                pkill -P $$ tail
-              fi
-            done
-            echo "Deployment successful!"
+            nohup ./inventoryStartUp.sh > nohup.out 2>&1 &
+            echo "Deployment completed."
