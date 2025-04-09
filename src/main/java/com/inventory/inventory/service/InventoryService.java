@@ -38,7 +38,7 @@ public class InventoryService {
     public InventoryEntity dtoToEntity(InventoryRequest request) {
         InventoryEntity inventoryEntity = new InventoryEntity();
         inventoryEntity.setProductId(request.getProductId());
-        inventoryEntity.setSalesLevel(SalesLevel.STOCKIST);
+        inventoryEntity.setSalesLevel(SalesLevel.WAREHOUSE);
         inventoryEntity.setQuantity(request.getQuantity());
         inventoryEntity.setUpdateAt(request.getUpdateAt());
         inventoryEntity.setClientId(request.getClientId());
@@ -68,7 +68,7 @@ public class InventoryService {
     public InventoryUpdateResponse updateInventory(Long clientFmcgId, Long productId,InventoryUpdateRequest request) {
         log.info("Inventory Updated Request for Sales Level : {}", request.getSalesLevel());
         log.info("Inventory Updated Request for Quantity Sold : {}", request.getQuantitySold());
-        InventoryEntity inventoryEntity = inventoryRepository.findByClientIdAndProductIdAndSalesLevel(clientFmcgId,productId, SalesLevel.STOCKIST).orElseThrow(() ->
+        InventoryEntity inventoryEntity = inventoryRepository.findByClientIdAndProductIdAndSalesLevel(clientFmcgId,productId, SalesLevel.WAREHOUSE).orElseThrow(() ->
                 new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorCode(),ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorMessage()));
         inventoryEntity.setSalesLevel(request.getSalesLevel());
 //        if (inventoryEntity.getQuantity() == 0) {
@@ -88,7 +88,7 @@ public class InventoryService {
         for(InventoryUpdateRequest updateRequest : request.getUpdateRequestList()) {
             log.info("Inventory Updated Request for Sales Level : {}", updateRequest.getSalesLevel());
             log.info("Inventory Updated Request for Quantity Sold : {}", updateRequest.getQuantitySold());
-            InventoryEntity inventoryEntity = inventoryRepository.findByClientIdAndProductIdAndSalesLevel(updateRequest.getClientId(), updateRequest.getProductId(), SalesLevel.STOCKIST).orElseThrow(() ->
+            InventoryEntity inventoryEntity = inventoryRepository.findByClientIdAndProductIdAndSalesLevel(updateRequest.getClientId(), updateRequest.getProductId(), SalesLevel.WAREHOUSE).orElseThrow(() ->
                     new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorCode(), ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorMessage()));
             inventoryEntity.setSalesLevel(updateRequest.getSalesLevel());
 //            if (inventoryEntity.getQuantity() == 0) {
@@ -117,7 +117,7 @@ public class InventoryService {
             return entityToDto(inventoryEntity);
         }else{
             optionalInventoryEntity.get().setQuantity(optionalInventoryEntity.get().getQuantity() + request.getQuantity());
-            optionalInventoryEntity.get().setSalesLevel(SalesLevel.STOCKIST);
+            optionalInventoryEntity.get().setSalesLevel(SalesLevel.WAREHOUSE);
             inventoryRepository.save(optionalInventoryEntity.get());
             log.info("Inventory Created Successfully: {}", optionalInventoryEntity.get());
             return entityToDto(optionalInventoryEntity.get());
@@ -139,7 +139,7 @@ public class InventoryService {
                 inventoryResponseList.add(entityToDto(inventoryEntity));
             }else{
                 optionalInventoryEntity.get().setQuantity(optionalInventoryEntity.get().getQuantity() + inventoryRequest.getQuantity());
-                optionalInventoryEntity.get().setSalesLevel(SalesLevel.STOCKIST);
+                optionalInventoryEntity.get().setSalesLevel(SalesLevel.WAREHOUSE);
                 inventoryRepository.save(optionalInventoryEntity.get());
                 log.info("Inventory Created Successfully: {}", optionalInventoryEntity.get());
                 inventoryResponseList.add(entityToDto(optionalInventoryEntity.get()));
