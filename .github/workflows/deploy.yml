@@ -99,8 +99,3 @@ jobs:
             break
             fi
             done < <(tail -f nohup.out)
-
-      - name: Delete uploaded JAR artifact
-        uses: geekyeggo/delete-artifact@v2
-        with:
-          name: jar-file
