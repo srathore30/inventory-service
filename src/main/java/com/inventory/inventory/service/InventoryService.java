@@ -79,6 +79,22 @@ public class InventoryService {
     }
 
     @Transactional
+    public InventoryUpdateResponse updateInventoryForSync(Long clientFmcgId, Long productId,InventoryUpdateRequest request) {
+        log.info("Inventory Updated Request for Sales Level : {}", request.getSalesLevel());
+        log.info("Inventory Updated Request for Quantity Sold : {}", request.getQuantitySold());
+        log.info("product id : {}", productId);
+        log.info("Client fmcg id : {}", clientFmcgId);
+        Optional<InventoryEntity> inventoryEntity = inventoryRepository.findByClientIdAndProductIdAndSalesLevel(clientFmcgId,productId, SalesLevel.WAREHOUSE);
+        if(inventoryEntity.isPresent()) {
+            inventoryEntity.get().setQuantity(inventoryEntity.get().getQuantity() - request.getQuantitySold());
+            inventoryRepository.save(inventoryEntity.get());
+            log.info("Inventory Updated Created : {}", inventoryEntity.get());
+            return entityToUpdateDto(inventoryEntity.get());
+        }
+        return new InventoryUpdateResponse();
+    }
+
+    @Transactional
     public List<InventoryUpdateResponse> updateInventoryInBulk(InventoryBulkUpdateReq request) {
         List<InventoryUpdateResponse> inventoryResponseList = new ArrayList<>();
         for(InventoryUpdateRequest updateRequest : request.getUpdateRequestList()) {
