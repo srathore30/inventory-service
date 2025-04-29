@@ -21,10 +21,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -76,6 +73,32 @@ public class InventoryService {
         inventoryRepository.save(inventoryEntity);
         log.info("Inventory Updated Created : {}", inventoryEntity);
         return entityToUpdateDto(inventoryEntity);
+    }
+
+    @Transactional
+    public void updateCustomInventory(List<UpdateCustomInventoryReq> updateCustomInventoryReqList){
+        List<InventoryEntity> inventoryEntityList = new ArrayList<>();
+        for(UpdateCustomInventoryReq updateCustomInventoryReq : updateCustomInventoryReqList){
+            inventoryEntityList.add(inventoryRepository.findByClientIdAndProductId(updateCustomInventoryReq.getClientFmcgId(), updateCustomInventoryReq.getProductId()).get());
+        }
+        List<InventoryEntity> updatedInventoryList = new ArrayList<>();
+        for (InventoryEntity inventoryEntity  : inventoryEntityList){
+             UpdateCustomInventoryReq foundData = findRelatedInventoryReq(inventoryEntity, updateCustomInventoryReqList);
+             inventoryEntity.setQuantity(inventoryEntity.getQuantity() + foundData.getQuantity());
+             updatedInventoryList.add(inventoryEntity);
+        }
+        inventoryRepository.saveAll(updatedInventoryList);
+    }
+
+    public UpdateCustomInventoryReq findRelatedInventoryReq(InventoryEntity inventoryEntity, List<UpdateCustomInventoryReq> updateCustomInventoryReqList){
+        UpdateCustomInventoryReq foundData = new UpdateCustomInventoryReq();
+        for(UpdateCustomInventoryReq updateCustomInventoryReq : updateCustomInventoryReqList){
+            if(Objects.equals(inventoryEntity.getClientId(), updateCustomInventoryReq.getClientFmcgId()) && Objects.equals(inventoryEntity.getProductId(), updateCustomInventoryReq.getProductId())){
+                foundData = updateCustomInventoryReq;
+                break;
+            }
+        }
+        return foundData;
     }
 
     @Transactional

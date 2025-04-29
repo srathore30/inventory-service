@@ -32,6 +32,13 @@ public class InventoryController {
         return new ResponseEntity<>(inventoryService.updateInventory(clientFmcgId,productId, request), HttpStatus.OK);
     }
 
+    @PutMapping("/inventory/updateCustomInventory")
+    @UserAuthorization(allowedRoles = {UserRole.ClientFMCG,UserRole.Create_Manager, UserRole.Edit_Manager, UserRole.Delete_Manager,UserRole.View_Manager,UserRole.Manager,UserRole.Reporting_Manager, UserRole.Super_Admin})
+    public ResponseEntity<Void> updateCustomInventory(@RequestBody List<UpdateCustomInventoryReq> updateCustomInventoryReqList) {
+        inventoryService.updateCustomInventory(updateCustomInventoryReqList);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @PutMapping("/inventory/sync/update/{productId}/{clientFmcgId}")
     @UserAuthorization(allowedRoles = {UserRole.ClientFMCG,UserRole.Create_Manager, UserRole.Edit_Manager, UserRole.Delete_Manager,UserRole.View_Manager,UserRole.Manager,UserRole.Reporting_Manager, UserRole.Super_Admin})
     public ResponseEntity<InventoryUpdateResponse> updateInventoryForSync(@PathVariable Long productId, @PathVariable Long clientFmcgId, @RequestBody InventoryUpdateRequest request) {

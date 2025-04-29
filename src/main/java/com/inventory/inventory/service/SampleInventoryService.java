@@ -3,10 +3,9 @@ package com.inventory.inventory.service;
 import com.inventory.inventory.constant.ApiErrorCodes;
 import com.inventory.inventory.constant.Status;
 import com.inventory.inventory.dto.request.SampleInventoryRequest;
-import com.inventory.inventory.dto.response.InventoryResponse;
+import com.inventory.inventory.dto.request.UpdateCustomInventoryReq;
 import com.inventory.inventory.dto.response.PaginatedResp;
 import com.inventory.inventory.dto.response.SampleInventoryResponse;
-import com.inventory.inventory.entity.InventoryEntity;
 import com.inventory.inventory.entity.SampleInventory;
 import com.inventory.inventory.exception.NoSuchElementFoundException;
 import com.inventory.inventory.repo.SampleInventoryRepo;
@@ -19,9 +18,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -49,6 +48,33 @@ public class SampleInventoryService {
             throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorCode(), ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorMessage());
         }
         return mapToDto(optionalSampleInventory.get());
+    }
+
+
+    @Transactional
+    public void updateCustomInventory(List<UpdateCustomInventoryReq> updateCustomInventoryReqList){
+        List<SampleInventory> sampleInventoryList = new ArrayList<>();
+        for(UpdateCustomInventoryReq updateCustomInventoryReq : updateCustomInventoryReqList){
+            sampleInventoryList.add(sampleInventoryRepo.findByProductIdAndMemberId(updateCustomInventoryReq.getProductId(), updateCustomInventoryReq.getMemberId()).get());
+        }
+        List<SampleInventory> updatedInventoryList = new ArrayList<>();
+        for (SampleInventory sampleInventory  : sampleInventoryList){
+            UpdateCustomInventoryReq foundData = findRelatedInventoryReq(sampleInventory, updateCustomInventoryReqList);
+            sampleInventory.setSampleQuantity(sampleInventory.getSampleQuantity() + foundData.getQuantity());
+            updatedInventoryList.add(sampleInventory);
+        }
+        sampleInventoryRepo.saveAll(updatedInventoryList);
+    }
+
+    public UpdateCustomInventoryReq findRelatedInventoryReq(SampleInventory sampleInventory, List<UpdateCustomInventoryReq> updateCustomInventoryReqList){
+        UpdateCustomInventoryReq foundData = new UpdateCustomInventoryReq();
+        for(UpdateCustomInventoryReq updateCustomInventoryReq : updateCustomInventoryReqList){
+            if(Objects.equals(sampleInventory.getMemberId(), updateCustomInventoryReq.getMemberId()) && Objects.equals(sampleInventory.getProductId(), updateCustomInventoryReq.getProductId())){
+                foundData = updateCustomInventoryReq;
+                break;
+            }
+        }
+        return foundData;
     }
 
     public SampleInventoryResponse getInventoryByMemberAndProductId(Long memberId, Long productId){
