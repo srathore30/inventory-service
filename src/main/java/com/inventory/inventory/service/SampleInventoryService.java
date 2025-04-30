@@ -55,6 +55,7 @@ public class SampleInventoryService {
     public void updateCustomInventory(List<UpdateCustomInventoryReq> updateCustomInventoryReqList){
         List<SampleInventory> sampleInventoryList = new ArrayList<>();
         for(UpdateCustomInventoryReq updateCustomInventoryReq : updateCustomInventoryReqList){
+            log.info("finding sample inventory by member id " + updateCustomInventoryReq.getMemberId() + " and productId " + updateCustomInventoryReq.getProductId());
             sampleInventoryList.add(sampleInventoryRepo.findByProductIdAndMemberId(updateCustomInventoryReq.getProductId(), updateCustomInventoryReq.getMemberId()).get());
         }
         List<SampleInventory> updatedInventoryList = new ArrayList<>();
