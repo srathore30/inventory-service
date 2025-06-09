@@ -107,4 +107,9 @@ public class InventoryController {
         return new ResponseEntity<>(inventoryService.getAllClientInventoryByMemberId(memberId,page, pageSize, sortBy, sortDirection), HttpStatus.OK);
     }
 
+    @GetMapping("/demo")
+    public void demo(){
+        
+    }
+
 }
