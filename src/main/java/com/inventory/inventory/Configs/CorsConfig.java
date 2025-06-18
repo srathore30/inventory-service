@@ -14,7 +14,15 @@ public class CorsConfig implements WebMvcConfigurer {
                         "http://staging.prism-sfa-dev.net/",
                         "http://88.222.215.37:9091",
                         "http://88.222.215.37",
-                        "https://www.dev.prism-sfa-dev.net")
+                        "https://www.dev.prism-sfa-dev.net",
+                        "https://test-pharma.prism-sfa-dev.net/",
+                        "https://www.test-pharma.prism-sfa-dev.net/",
+                        "https://test-fmcg.prism-sfa-dev.net/",
+                        "https://www.test-fmcg.prism-sfa-dev.net/",
+                        "https://jyoti-pharma.prism-sfa-dev.net/",
+                        "https://sharma-store.prism-sfa-dev.net/",
+                        "https://www.prism-sfa-dev.net/"
+                )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*").allowCredentials(true)
                 .maxAge(3600);

@@ -1,8 +1,10 @@
 package com.inventory.inventory.utill;
 
 import com.inventory.inventory.Configs.TokenContext;
+import com.inventory.inventory.constant.ApiErrorCodes;
 import com.inventory.inventory.dto.response.ClientFMCGResponse;
 import com.inventory.inventory.dto.response.MemberResponse;
+import com.inventory.inventory.exception.BusinessServiceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,28 +44,47 @@ public class ExternalRestService {
     }
 
     public ClientFMCGResponse getClient(Long clientId) {
-        log.info("Get client with id: {}", clientId);
-        String url = clientServiceUrl + "/" + clientId;
-        log.info("URL: {}", url);
-        HttpEntity<Void> requestEntity = new HttpEntity<>(createHeaders());
-        log.info("Fetch client details with authorization header");
-        ResponseEntity<ClientFMCGResponse> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, ClientFMCGResponse.class);
-        return response.getBody();
+        try {
+            log.info("While fetching getClient from external rest service");
+            log.info("Get client with id: {}", clientId);
+            String url = clientServiceUrl + "/" + clientId;
+            log.info("URL: {}", url);
+            HttpEntity<Void> requestEntity = new HttpEntity<>(createHeaders());
+            log.info("Fetch client details with authorization header");
+            ResponseEntity<ClientFMCGResponse> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, ClientFMCGResponse.class);
+            return response.getBody();
+        }catch (Exception e){
+            log.info("Error occurred: " + e.getMessage());
+            throw new BusinessServiceException(ApiErrorCodes.INVALID_INPUT.getErrorCode(), e.getMessage());
+        }
     }
     public MemberResponse getMemberById(Long memberId) {
-        log.info("Get member with id: {}", memberId);
-        String url = getMemberUrl + "/" + memberId;
-        log.info("URL: {}", url);
-        HttpEntity<Void> requestEntity = new HttpEntity<>(createHeaders());
-        log.info("Fetch client details with authorization header");
-        ResponseEntity<MemberResponse> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, MemberResponse.class);
-        return response.getBody();
+        try {
+            log.info("While fetching getMemberById from external rest service");
+            log.info("Get member with id: {}", memberId);
+            String url = getMemberUrl + "/" + memberId;
+            log.info("URL: {}", url);
+            HttpEntity<Void> requestEntity = new HttpEntity<>(createHeaders());
+            log.info("Fetch client details with authorization header");
+            ResponseEntity<MemberResponse> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, MemberResponse.class);
+            return response.getBody();
+        }catch (Exception e){
+            log.info("Error occurred: " + e.getMessage());
+            throw new BusinessServiceException(ApiErrorCodes.INVALID_INPUT.getErrorCode(), e.getMessage());
+        }
     }
 
     public Set<Long> getClientIdsByMemberId(Long memberId) {
-        String url = clientIdsServiceUrl + "/" + memberId;
-        HttpEntity<Void> requestEntity = new HttpEntity<>(createHeaders());
-        log.info("Fetch client details with authorization header");
-        return restTemplate.exchange(url, HttpMethod.GET, requestEntity, new ParameterizedTypeReference<Set<Long>>() {}).getBody();
+        try {
+            log.info("While fetching getClientIdsByMemberId from external rest service");
+            String url = clientIdsServiceUrl + "/" + memberId;
+            HttpEntity<Void> requestEntity = new HttpEntity<>(createHeaders());
+            log.info("Fetch client details with authorization header");
+            return restTemplate.exchange(url, HttpMethod.GET, requestEntity, new ParameterizedTypeReference<Set<Long>>() {
+            }).getBody();
+        }catch (Exception e){
+            log.info("Error occurred: " + e.getMessage());
+            throw new BusinessServiceException(ApiErrorCodes.INVALID_INPUT.getErrorCode(), e.getMessage());
+        }
     }
 }

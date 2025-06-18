@@ -7,11 +7,11 @@ import com.inventory.inventory.dto.response.InventoryResponse;
 import com.inventory.inventory.dto.response.InventoryUpdateResponse;
 import com.inventory.inventory.dto.response.PaginatedResp;
 import com.inventory.inventory.entity.InventoryEntity;
+import com.inventory.inventory.enums.SalesLevel;
 import com.inventory.inventory.exception.NoSuchElementFoundException;
 import com.inventory.inventory.repo.InventoryRepository;
 import com.inventory.inventory.utill.ExternalRestService;
 import com.inventory.inventory.utill.ProductServiceClient;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -19,11 +19,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,7 +35,7 @@ public class InventoryService {
     public InventoryEntity dtoToEntity(InventoryRequest request) {
         InventoryEntity inventoryEntity = new InventoryEntity();
         inventoryEntity.setProductId(request.getProductId());
-        inventoryEntity.setSalesLevel(request.getSalesLevel());
+        inventoryEntity.setSalesLevel(SalesLevel.WAREHOUSE);
         inventoryEntity.setQuantity(request.getQuantity());
         inventoryEntity.setUpdateAt(request.getUpdateAt());
         inventoryEntity.setClientId(request.getClientId());
@@ -63,36 +61,70 @@ public class InventoryService {
         return response;
     }
 
+    @Transactional
     public InventoryUpdateResponse updateInventory(Long clientFmcgId, Long productId,InventoryUpdateRequest request) {
         log.info("Inventory Updated Request for Sales Level : {}", request.getSalesLevel());
         log.info("Inventory Updated Request for Quantity Sold : {}", request.getQuantitySold());
-        InventoryEntity inventoryEntity = inventoryRepository.findByClientIdAndProductIdAndSalesLevel(clientFmcgId,productId, request.getSalesLevel()).orElseThrow(() ->
+        log.info("product id : {}", productId);
+        log.info("Client fmcg id : {}", clientFmcgId);
+        InventoryEntity inventoryEntity = inventoryRepository.findByClientIdAndProductIdAndSalesLevel(clientFmcgId,productId, SalesLevel.WAREHOUSE).orElseThrow(() ->
                 new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorCode(),ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorMessage()));
-        inventoryEntity.setSalesLevel(request.getSalesLevel());
-//        if (inventoryEntity.getQuantity() == 0) {
-//            throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NULL.getErrorCode(),ApiErrorCodes.INVENTORY_NULL.getErrorMessage());
-//        }else if (inventoryEntity.getQuantity() < request.getQuantitySold()) {
-//            throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_LESS_THAN_SOLD.getErrorCode(),ApiErrorCodes.INVENTORY_LESS_THAN_SOLD.getErrorMessage());
-//        }
         inventoryEntity.setQuantity(inventoryEntity.getQuantity() - request.getQuantitySold());
         inventoryRepository.save(inventoryEntity);
         log.info("Inventory Updated Created : {}", inventoryEntity);
         return entityToUpdateDto(inventoryEntity);
     }
 
+    @Transactional
+    public void updateCustomInventory(List<UpdateCustomInventoryReq> updateCustomInventoryReqList){
+        List<InventoryEntity> inventoryEntityList = new ArrayList<>();
+        for(UpdateCustomInventoryReq updateCustomInventoryReq : updateCustomInventoryReqList){
+            inventoryEntityList.add(inventoryRepository.findByClientIdAndProductId(updateCustomInventoryReq.getClientFmcgId(), updateCustomInventoryReq.getProductId()).get());
+        }
+        List<InventoryEntity> updatedInventoryList = new ArrayList<>();
+        for (InventoryEntity inventoryEntity  : inventoryEntityList){
+             UpdateCustomInventoryReq foundData = findRelatedInventoryReq(inventoryEntity, updateCustomInventoryReqList);
+             inventoryEntity.setQuantity(inventoryEntity.getQuantity() + foundData.getQuantity());
+             updatedInventoryList.add(inventoryEntity);
+        }
+        inventoryRepository.saveAll(updatedInventoryList);
+    }
+
+    public UpdateCustomInventoryReq findRelatedInventoryReq(InventoryEntity inventoryEntity, List<UpdateCustomInventoryReq> updateCustomInventoryReqList){
+        UpdateCustomInventoryReq foundData = new UpdateCustomInventoryReq();
+        for(UpdateCustomInventoryReq updateCustomInventoryReq : updateCustomInventoryReqList){
+            if(Objects.equals(inventoryEntity.getClientId(), updateCustomInventoryReq.getClientFmcgId()) && Objects.equals(inventoryEntity.getProductId(), updateCustomInventoryReq.getProductId())){
+                foundData = updateCustomInventoryReq;
+                break;
+            }
+        }
+        return foundData;
+    }
+
+    @Transactional
+    public InventoryUpdateResponse updateInventoryForSync(Long clientFmcgId, Long productId,InventoryUpdateRequest request) {
+        log.info("Inventory Updated Request for Sales Level : {}", request.getSalesLevel());
+        log.info("Inventory Updated Request for Quantity Sold : {}", request.getQuantitySold());
+        log.info("product id : {}", productId);
+        log.info("Client fmcg id : {}", clientFmcgId);
+        Optional<InventoryEntity> inventoryEntity = inventoryRepository.findByClientIdAndProductIdAndSalesLevel(clientFmcgId,productId, SalesLevel.WAREHOUSE);
+        if(inventoryEntity.isPresent()) {
+            inventoryEntity.get().setQuantity(inventoryEntity.get().getQuantity() - request.getQuantitySold());
+            inventoryRepository.save(inventoryEntity.get());
+            log.info("Inventory Updated Created : {}", inventoryEntity.get());
+            return entityToUpdateDto(inventoryEntity.get());
+        }
+        return new InventoryUpdateResponse();
+    }
+
+    @Transactional
     public List<InventoryUpdateResponse> updateInventoryInBulk(InventoryBulkUpdateReq request) {
         List<InventoryUpdateResponse> inventoryResponseList = new ArrayList<>();
         for(InventoryUpdateRequest updateRequest : request.getUpdateRequestList()) {
             log.info("Inventory Updated Request for Sales Level : {}", updateRequest.getSalesLevel());
             log.info("Inventory Updated Request for Quantity Sold : {}", updateRequest.getQuantitySold());
-            InventoryEntity inventoryEntity = inventoryRepository.findByClientIdAndProductIdAndSalesLevel(updateRequest.getClientId(), updateRequest.getProductId(), updateRequest.getSalesLevel()).orElseThrow(() ->
+            InventoryEntity inventoryEntity = inventoryRepository.findByClientIdAndProductIdAndSalesLevel(updateRequest.getClientId(), updateRequest.getProductId(), SalesLevel.WAREHOUSE).orElseThrow(() ->
                     new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorCode(), ApiErrorCodes.INVENTORY_NOT_FOUND.getErrorMessage()));
-            inventoryEntity.setSalesLevel(updateRequest.getSalesLevel());
-//            if (inventoryEntity.getQuantity() == 0) {
-//                throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_NULL.getErrorCode(), ApiErrorCodes.INVENTORY_NULL.getErrorMessage());
-//            } else if (inventoryEntity.getQuantity() < updateRequest.getQuantitySold()) {
-//                throw new NoSuchElementFoundException(ApiErrorCodes.INVENTORY_LESS_THAN_SOLD.getErrorCode(), ApiErrorCodes.INVENTORY_LESS_THAN_SOLD.getErrorMessage());
-//            }
             inventoryEntity.setQuantity(inventoryEntity.getQuantity() - updateRequest.getQuantitySold());
             inventoryRepository.save(inventoryEntity);
             log.info("Inventory Updated for particular client and product : {}", inventoryEntity);
@@ -114,7 +146,7 @@ public class InventoryService {
             return entityToDto(inventoryEntity);
         }else{
             optionalInventoryEntity.get().setQuantity(optionalInventoryEntity.get().getQuantity() + request.getQuantity());
-            optionalInventoryEntity.get().setSalesLevel(request.getSalesLevel());
+            optionalInventoryEntity.get().setSalesLevel(SalesLevel.WAREHOUSE);
             inventoryRepository.save(optionalInventoryEntity.get());
             log.info("Inventory Created Successfully: {}", optionalInventoryEntity.get());
             return entityToDto(optionalInventoryEntity.get());
@@ -136,7 +168,7 @@ public class InventoryService {
                 inventoryResponseList.add(entityToDto(inventoryEntity));
             }else{
                 optionalInventoryEntity.get().setQuantity(optionalInventoryEntity.get().getQuantity() + inventoryRequest.getQuantity());
-                optionalInventoryEntity.get().setSalesLevel(inventoryRequest.getSalesLevel());
+                optionalInventoryEntity.get().setSalesLevel(SalesLevel.WAREHOUSE);
                 inventoryRepository.save(optionalInventoryEntity.get());
                 log.info("Inventory Created Successfully: {}", optionalInventoryEntity.get());
                 inventoryResponseList.add(entityToDto(optionalInventoryEntity.get()));

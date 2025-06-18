@@ -2,6 +2,7 @@ package com.inventory.inventory.controller;
 
 import com.inventory.inventory.constant.UserRole;
 import com.inventory.inventory.dto.request.SampleInventoryRequest;
+import com.inventory.inventory.dto.request.UpdateCustomInventoryReq;
 import com.inventory.inventory.dto.response.PaginatedResp;
 import com.inventory.inventory.dto.response.SampleInventoryResponse;
 import com.inventory.inventory.interceptor.UserAuthorization;
@@ -10,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,6 +41,13 @@ public class SampleInventoryController {
     @UserAuthorization(allowedRoles = {UserRole.ClientFMCG, UserRole.Delete_Manager, UserRole.Super_Admin})
     public ResponseEntity<Void> deleteInventory(@PathVariable Long id) {
         sampleInventoryService.deleteInventory(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping("/updateCustomInventory")
+    @UserAuthorization(allowedRoles = {UserRole.ClientFMCG,UserRole.Create_Manager, UserRole.Edit_Manager, UserRole.Delete_Manager,UserRole.View_Manager,UserRole.Manager,UserRole.Reporting_Manager, UserRole.Super_Admin})
+    public ResponseEntity<Void> updateCustomInventory(@RequestBody List<UpdateCustomInventoryReq> updateCustomInventoryReqList) {
+        sampleInventoryService.updateCustomInventory(updateCustomInventoryReqList);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
