@@ -28,16 +28,17 @@ product:
     url: http://localhost:9093/product-service/products/
 clients:
   getAllIds:
-      url: http://localhost:8080/client-fmcg/getAllClientFmcgIdsByMemberId
+      url: http://localhost:9090/client-fmcg/getAllClientFmcgIdsByMemberId
   service:
-    url: http://localhost:8080/client-fmcg/getClientFMCGById
+    url: http://localhost:9090/client-fmcg/getClientFMCGById
 server:
   port: 9095
   servlet:
     context-path: /inventory-service
 member:
   getMember:
-    url: http://localhost:8080/getMemberById
+    url: http://localhost:9090/getMemberById
+
 springdoc:
   api-docs:
     path: /v3/api-docs
